@@ -5,6 +5,7 @@ on: push
 jobs:
   automated-api-tests:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -15,7 +16,16 @@ jobs:
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
-      - name: Run API tests
+      - name: Run API tests and generate report
         run: |
-          postman collection run "39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967" -e "39430124-bd3179f0-392f-42b4-a4cc-3431dd17744e"
+          postman collection run "39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967" \
+            -e "39430124-bd3179f0-392f-42b4-a4cc-3431dd17744e" \
+            --reporters cli,json,html \
+            --reporter-html-export ./postman/report.html \
+            --reporter-json-export ./postman/report.json
 
+      - name: Upload Test Report (Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-api-test-report
+          path: ./postman/
