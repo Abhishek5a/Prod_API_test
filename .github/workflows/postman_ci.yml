@@ -1,0 +1,31 @@
+name: Run Postman Collection
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  postman-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Newman (Postman CLI)
+      run: npm install -g newman
+
+    -name: Run Postman collection
+     run: newman run ./Api_tests/My Project.postman.json --reporters cli
+
+
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: postman-test-report
+        path: newman-report.html
+
+
+
+- 
