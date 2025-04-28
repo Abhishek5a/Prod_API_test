@@ -17,7 +17,7 @@ jobs:
       run: npm install -g newman
 
     -name: Run Postman collection
-     run: newman run /Api_tests/My Project.postman.json --reporters cli
+     run: newman run /Api_tests/My_Project.postman --reporters cli
 
 
     - name: Upload Test Report
