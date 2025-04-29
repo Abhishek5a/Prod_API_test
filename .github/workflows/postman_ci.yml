@@ -1,6 +1,10 @@
-name: Automated API tests using Postman CLI
+name: Automated API tests using Postman CLI and Newman
 
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 10 * * *'  # 10:00 AM UTC
+    - cron: '0 17 * * *'  # 5:00 PM UTC
 
 jobs:
   automated-api-tests:
@@ -9,48 +13,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Postman CLI
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-html
+
+      - name: Run Newman tests and generate reports
         run: |
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+          mkdir -p ./newman
+          newman run https://api.postman.com/collections/39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967?apikey=${{ secrets.POSTMAN_API_KEY }} \
+            --environment https://api.postman.com/environments/39430124-bd3179f0-392f-42b4-a4cc-3431dd17744e?apikey=${{ secrets.POSTMAN_API_KEY }} \
+            --reporters cli,html,json \
+            --reporter-html-export ./newman/report.html \
+            --reporter-json-export ./newman/report.json
 
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-
-      - name: Run API tests and generate report
-        run: |
-          postman collection run "39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967" \
-            -e "39430124-bd3179f0-392f-42b4-a4cc-3431dd17744e" \
-            --reporters cli,json,html \
-            --reporter-html-export ./postman/report.html \
-            --reporter-json-export ./postman/report.json
-
-      - name: Upload Test Report (Artifact)
+      - name: Upload Newman Reports
         uses: actions/upload-artifact@v4
         with:
-          name: postman-api-test-report
-          path: ./postman/
-
-      - name: Install msmtp and mutt
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y msmtp mutt
-
-      - name: Configure msmtp
-        run: |
-          echo "defaults" > ~/.msmtprc
-          echo "account gmail" >> ~/.msmtprc
-          echo "host smtp.gmail.com" >> ~/.msmtprc
-          echo "port 587" >> ~/.msmtprc
-          echo "auth on" >> ~/.msmtprc
-          echo "tls on" >> ~/.msmtprc
-          echo "tls_trust_file /etc/ssl/certs/ca-certificates.crt" >> ~/.msmtprc
-          echo "user ${{ secrets.SMTP_USER }}" >> ~/.msmtprc
-          echo "password ${{ secrets.SMTP_PASS }}" >> ~/.msmtprc
-          echo "from ${{ secrets.SMTP_USER }}" >> ~/.msmtprc
-          echo "account default : gmail" >> ~/.msmtprc
-          chmod 600 ~/.msmtprc
-
-      - name: Send email with attachment
-        run: |
-          echo "Please find the Postman test report attached." | mutt -s "Postman API Test Report" \
-          -a ./postman/report.html -- ${{ secrets.TO_EMAIL }}
+          name: newman-api-test-report
+          path: ./newman/
