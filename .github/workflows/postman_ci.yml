@@ -48,5 +48,4 @@ jobs:
             -from "${{ secrets.SMTP_USER }}" \
             -to "${{ secrets.TO_EMAIL }}" \
             -sub "Postman API Test Report" \
-            -attach ./postman/report.html \
-            -M "Hello,\n\nPlease find the attached Postman test report.\n\nRegards,\nGitHub Actions"
+            
