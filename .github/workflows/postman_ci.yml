@@ -18,12 +18,11 @@ jobs:
 
       - name: Run API tests and generate report
         run: |
-           postman collection run "39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967" \
+          postman collection run "39430124-8ad8fea8-76ea-4a78-8faf-49f1797cd967" \
             -e "39430124-bd3179f0-392f-42b4-a4cc-3431dd17744e" \
-           --reporters cli,json,html \
+            --reporters cli,json,html \
             --reporter-html-export ./postman/report.html \
             --reporter-json-export ./postman/report.json
-
 
       - name: Upload Test Report (Artifact)
         uses: actions/upload-artifact@v4
@@ -31,24 +30,22 @@ jobs:
           name: postman-api-test-report
           path: ./postman/
 
-      -- name: Install mailsend-go
-  run: |
-    curl -L https://github.com/muquit/mailsend-go/releases/latest/download/mailsend-go-linux-amd64 -o mailsend-go
-    chmod +x mailsend-go
-    sudo mv mailsend-go /usr/local/bin/
+      - name: Install mailsend-go
+        run: |
+          curl -L https://github.com/muquit/mailsend-go/releases/latest/download/mailsend-go-linux-amd64 -o mailsend-go
+          chmod +x mailsend-go
+          sudo mv mailsend-go /usr/local/bin/
 
-- name: Send Email via Gmail SMTP
-  run: |
-    mailsend-go \
-      -smtp smtp.gmail.com \
-      -port 587 \
-      -auth \
-      -user "${{ secrets.SMTP_USER }}" \
-      -pass "${{ secrets.SMTP_PASS }}" \
-      -from "${{ secrets.SMTP_USER }}" \
-      -to "${{ secrets.TO_EMAIL }}" \
-      -sub "Postman API Test Report" \
-      -M "Hello,\n\nPlease find the attached Postman test report.\n\nRegards,\nGitHub Actions" \
-      -attach ./postman/report.html
-
-            
+      - name: Send Email via Gmail SMTP
+        run: |
+          mailsend-go \
+            -smtp smtp.gmail.com \
+            -port 587 \
+            -auth \
+            -user "${{ secrets.SMTP_USER }}" \
+            -pass "${{ secrets.SMTP_PASS }}" \
+            -from "${{ secrets.SMTP_USER }}" \
+            -to "${{ secrets.TO_EMAIL }}" \
+            -sub "Postman API Test Report" \
+            -M "Hello,\n\nPlease find the attached Postman test report.\n\nRegards,\nGitHub Actions" \
+            -attach ./postman/report.html
