@@ -1,6 +1,7 @@
 name: Automated API tests using Postman CLI
 
 on: push
+    schedule:
     - cron: '0 10 * * *'  # 10:00 AM UTC daily
     - cron: '0 17 * * *'  # 5:00 PM UTC daily
 
