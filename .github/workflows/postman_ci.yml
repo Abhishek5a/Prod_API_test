@@ -31,21 +31,24 @@ jobs:
           name: postman-api-test-report
           path: ./postman/
 
-      - name: Install mailsend-go
-        run: |
-          curl -L https://github.com/muquit/mailsend-go/releases/latest/download/mailsend-go-linux-amd64 -o mailsend-go
-          chmod +x mailsend-go
-          sudo mv mailsend-go /usr/local/bin/
+      -- name: Install mailsend-go
+  run: |
+    curl -L https://github.com/muquit/mailsend-go/releases/latest/download/mailsend-go-linux-amd64 -o mailsend-go
+    chmod +x mailsend-go
+    sudo mv mailsend-go /usr/local/bin/
 
-      - name: Send Email via Gmail SMTP
-        run: |
-          mailsend-go \
-            -smtp smtp.gmail.com \
-            -port 587 \
-            -auth \
-            -user "${{ secrets.SMTP_USER }}" \
-            -pass "${{ secrets.SMTP_PASS }}" \
-            -from "${{ secrets.SMTP_USER }}" \
-            -to "${{ secrets.TO_EMAIL }}" \
-            -sub "Postman API Test Report" \
+- name: Send Email via Gmail SMTP
+  run: |
+    mailsend-go \
+      -smtp smtp.gmail.com \
+      -port 587 \
+      -auth \
+      -user "${{ secrets.SMTP_USER }}" \
+      -pass "${{ secrets.SMTP_PASS }}" \
+      -from "${{ secrets.SMTP_USER }}" \
+      -to "${{ secrets.TO_EMAIL }}" \
+      -sub "Postman API Test Report" \
+      -M "Hello,\n\nPlease find the attached Postman test report.\n\nRegards,\nGitHub Actions" \
+      -attach ./postman/report.html
+
             
