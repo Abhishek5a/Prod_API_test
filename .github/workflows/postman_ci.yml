@@ -3,8 +3,8 @@ name: Automated API tests using Postman CLI
 on:
   push:
   schedule:
-    - cron: '0 10 * * *'  # 10:00 AM UTC
-    - cron: '0 17 * * *'  # 5:00 PM UTC
+    - cron: '0 8 * * *'  # 01:30 PM IST
+    
 
 jobs:
   automated-api-tests:
